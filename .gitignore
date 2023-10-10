@@ -1,0 +1,62 @@
+# Carpeta de dependencias y resultados de compilación
+/bin/
+/obj/
+
+# Archivos de configuración local
+/appsettings.json
+/appsettings.Development.json
+/appsettings.Production.json
+/appsettings.Staging.json
+/appsettings.Local.json
+
+# Carpeta de archivos temporales generados durante el desarrollo
+/.vscode/
+/.idea/
+/.vs/
+/.suo
+/.user
+/.sln.docstates
+
+# Carpeta de registros y datos de pruebas
+/testResults/
+/TestResults/
+/nlog-debug.log
+
+# Carpeta de paquetes NuGet restaurados
+/packages/
+
+# Archivo de proyecto específico del IDE (por ejemplo, Visual Studio)
+.vscode/
+*.suo
+*.user
+*.sln.docstates
+
+# Carpeta de caché de paquetes NuGet
+/.local/share/NuGet/Cache/
+
+# Carpeta de migraciones de Entity Framework
+/Data/Migrations/
+
+# Carpeta de archivos de publicación
+/wwwroot/
+
+# Archivo de configuración de IIS Express
+/.vsconfig
+
+# Carpeta de análisis de código estático (por ejemplo, Roslynator, SonarQube)
+/CodeAnalysis/
+
+# Carpeta de caché de Rider (IDE de JetBrains)
+.idea/
+
+# Archivo de proyecto específico de Rider (IDE de JetBrains)
+.idea/.name
+
+# Carpeta de caché de Visual Studio Code
+.vscode/
+
+# Carpeta de caché de Visual Studio
+.vs/
+
+# Archivo de bloqueo de Visual Studio
+.lock
