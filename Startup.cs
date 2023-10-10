@@ -40,7 +40,7 @@ namespace WebApiGames
             app.UseAuthorization();
 
             app.UseRouting();
-            app.UseMiddleware<KeywordCheckMiddleware>();
+            //app.UseMiddleware<KeywordCheckMiddleware>();
             //app.MapControllers();
 
             app.UseEndpoints(endpoints =>
