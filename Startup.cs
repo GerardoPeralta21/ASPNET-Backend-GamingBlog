@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json.Serialization;
 using WebApiGames.Filtros;
 using WebApiGames.Middlaware;
 
@@ -18,7 +19,8 @@ namespace WebApiGames
         {
             // Add services to the container.
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(configure =>
+            configure.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
             services.AddEndpointsApiExplorer();

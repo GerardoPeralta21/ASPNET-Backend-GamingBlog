@@ -22,6 +22,20 @@ namespace WebApiGames.Controllers
         public async Task<ActionResult<List<Rol>>> Get()
         {
             return await context.Roles.ToListAsync();
+            //return await context.Roles.Include(u => u.Usuarios).ToListAsync();
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Rol>> GetById(int id)
+        {
+            var rol= await context.Roles.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (rol == null)
+            {
+                return NotFound();
+            }
+
+            return rol;
         }
 
         [HttpPost]
@@ -67,6 +81,14 @@ namespace WebApiGames.Controllers
             if (!existe)
             {
                 return NotFound();
+            }
+
+            // Buscar si hay un usuario que tenga asociado el rol del id
+            var tieneUsuario = await context.Usuarios.AnyAsync(u => u.Roles.Any(r => r.Id == id));
+
+            if (tieneUsuario)
+            {
+                return BadRequest("No se puede eliminar el rol porque está asociado a un usuario.");
             }
 
             context.Remove(new Rol() { Id = id });
