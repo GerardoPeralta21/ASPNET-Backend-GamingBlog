@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using WebApiGames.DTO.Rol;
+using WebApiGames.DTO.Usuario;
 using WebApiGames.Entidades;
 
 namespace WebApiGames.Controllers
@@ -18,17 +21,20 @@ namespace WebApiGames.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Usuario>>> Get()
+        public async Task<ActionResult<List<UsuarioViewDTO>>> Get()
         {
-            //return await context.Usuarios.ToListAsync();
-            return await context.Usuarios.Include(u => u.Roles).ToListAsync();
-
+            var usuarios = await context.Usuarios.Include(u => u.Roles).ToListAsync();
+            return usuarios.Select(u => new UsuarioViewDTO
+            {
+                Id = u.Id,
+                Nombre = u.Nombre,
+                Roles = u.Roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList()
+            }).ToList();
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Usuario>> GetById(int id)
+        public async Task<ActionResult<UsuarioViewDTO>> GetById(int id)
         {
-            //throw new NotImplementedException();
             var usuario = await context.Usuarios.Include(u => u.Roles).FirstOrDefaultAsync(x => x.Id == id);
 
             if (usuario == null)
@@ -36,89 +42,87 @@ namespace WebApiGames.Controllers
                 return NotFound();
             }
 
-            return usuario;
+            return new UsuarioViewDTO
+            {
+                Id = id,
+                Nombre = usuario.Nombre,
+                Roles = usuario.Roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList()
+            };
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(Usuario usuario)
+        public async Task<ActionResult> Create(UsuarioCreateDTO usuarioDto)
         {
-            var existeTienda = await context.Usuarios.AnyAsync(x => x.Nombre == usuario.Nombre);
+            var existeUsuario = await context.Usuarios.AnyAsync(x => x.Nombre == usuarioDto.Nombre);
 
-            if (existeTienda)
+            if (existeUsuario)
             {
-                return BadRequest($"Ya existe la tienda {usuario.Nombre}");
+                return BadRequest($"Ya existe el usuario {usuarioDto.Nombre}");
             }
 
-            // Verifica si los roles existen
-            var rolesExistentes = await context.Roles.Where(r => usuario.Roles.Select(ur => ur.Id).Contains(r.Id)).ToListAsync();
-            var rolesNoExistentes = usuario.Roles.Where(ur => !rolesExistentes.Any(re => re.Id == ur.Id)).ToList();
 
-            if (rolesNoExistentes.Any())
+            var rolesExistentes = await context.Roles.Where(r => usuarioDto.Roles.Contains(r.Id)).ToListAsync();
+
+            if (rolesExistentes.Count() != usuarioDto.Roles.Count())
             {
-                return BadRequest($"Los siguientes roles no existen: {string.Join(", ", rolesNoExistentes.Select(r => r.Id))}");
+                int[] rolesUsuarioDto = usuarioDto.Roles.ToArray();
+                var idsRolesNoExistentes = rolesUsuarioDto.Except(rolesExistentes.Select( u => u.Id).ToArray()).ToArray();
+                return BadRequest($"Los siguientes id, no corresponden a roles: {string.Join(", ", idsRolesNoExistentes)}");
             }
 
-            usuario.Roles = rolesExistentes;
+            var usuario = new Usuario
+            {
+                Nombre = usuarioDto.Nombre,
+                Roles = rolesExistentes
+            };
 
             context.Add(usuario);
             await context.SaveChangesAsync();
+
             return Ok();
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Usuario usuario, int id)
+        public async Task<ActionResult> Put(UsuarioEditDTO usuarioDto, int id)
         {
-            var existe = await context.Usuarios.AnyAsync(x => x.Id == id);
+            var existeUsuario = await context.Usuarios.AnyAsync(x => x.Id == id);
 
-            if (!existe)
+            if (!existeUsuario)
             {
                 return NotFound();
             }
+            var rolesExistentes = await context.Roles.Where(r => usuarioDto.Roles.Contains(r.Id)).ToListAsync();
 
-            if (usuario.Id != id)
+            if (rolesExistentes.Count() != usuarioDto.Roles.Count())
             {
-                return BadRequest("El id del usuario no coincide con el id de la url");
+                int[] rolesUsuarioDto = usuarioDto.Roles.ToArray();
+                var idsRolesNoExistentes = rolesUsuarioDto.Except(rolesExistentes.Select(u => u.Id).ToArray()).ToArray();
+                return BadRequest($"Los siguientes id, no corresponden a roles: {string.Join(", ", idsRolesNoExistentes)}");
             }
 
-            // Verifica si los roles existen
-            var rolesExistentes = await context.Roles.Where(r => usuario.Roles.Select(ur => ur.Id).Contains(r.Id)).ToListAsync();
-            var rolesNoExistentes = usuario.Roles.Where(ur => !rolesExistentes.Any(re => re.Id == ur.Id)).ToList();
+            //var rolesExistentes = await context.Roles.Where(r => usuarioDto.Roles.Contains(r.Id)).ToListAsync();
 
-            if (rolesNoExistentes.Any())
-            {
-                return BadRequest($"Los siguientes roles no existen: {string.Join(", ", rolesNoExistentes.Select(r => r.Id))}");
-            }
-
-            // Carga el usuario existente desde la base de datos
             var usuarioExistente = await context.Usuarios.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
+
+            usuarioExistente.Nombre = usuarioDto.Nombre;
 
             // Elimina los roles existentes del usuario
             usuarioExistente.Roles.Clear();
 
             // Añade los nuevos roles al usuario
-            var roles = await context.Roles.Where(r => usuario.Roles.Select(ur => ur.Id).Contains(r.Id)).ToListAsync();
-            usuarioExistente.Roles = roles;
-
-            // Actualiza el nombre del usuario
-            usuarioExistente.Nombre = usuario.Nombre;
+            //usuarioExistente.Roles.AddRange(rolesExistentes);
+            usuarioExistente.Roles = rolesExistentes;
 
             try
             {
                 await context.SaveChangesAsync();
+                return Ok();
             }
             catch (DbUpdateConcurrencyException)
             {
                 // maneja el error como prefieras
                 throw;
             }
-
-            return Ok();
-            //Objeto de ejemplo
-//            {
-//                "id": 6,
-//                "nombre": "Kim Domenech",
-//                "roles": [{ "id": 3 }]
-//            }
         }
 
         [HttpDelete("{id:int}")]

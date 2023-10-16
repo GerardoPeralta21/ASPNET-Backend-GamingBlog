@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiGames.DTO.Rol;
 using WebApiGames.Entidades;
 using WebApiGames.Filtros;
 
@@ -19,14 +20,16 @@ namespace WebApiGames.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Rol>>> Get()
+        public async Task<ActionResult<List<RolViewDTO>>> Get()
         {
-            return await context.Roles.ToListAsync();
-            //return await context.Roles.Include(u => u.Usuarios).ToListAsync();
+            //return await context.Roles.ToListAsync();
+            ////return await context.Roles.Include(u => u.Usuarios).ToListAsync();
+            var roles = await context.Roles.ToListAsync();
+            return roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList();
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Rol>> GetById(int id)
+        public async Task<ActionResult<RolViewDTO>> GetById(int id)
         {
             var rol= await context.Roles.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -35,19 +38,20 @@ namespace WebApiGames.Controllers
                 return NotFound();
             }
 
-            return rol;
+            return new RolViewDTO { Id = rol.Id, Nombre = rol.Nombre };
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(Rol rol)
+        public async Task<ActionResult> Create(RolCreateDTO rolDto)
         {
-            logger.LogInformation("Estoy en el controlador de crear");
-            var existeTienda = await context.Roles.AnyAsync(x => x.Nombre == rol.Nombre);
+            var existeRol = await context.Roles.AnyAsync(x => x.Nombre == rolDto.Nombre);
 
-            if (existeTienda)
+            if (existeRol)
             {
-                return BadRequest($"Ya existe la tienda {rol.Nombre}");
+                return BadRequest($"Ya existe el rol {rolDto.Nombre}");
             }
+
+            var rol = new Rol { Nombre = rolDto.Nombre };
 
             context.Add(rol);
             await context.SaveChangesAsync();
@@ -55,21 +59,25 @@ namespace WebApiGames.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Rol rol, int id)
+        public async Task<ActionResult> Put(RolEditDTO rolDto, int id)
         {
-            var existe = await context.Roles.AnyAsync(x => x.Id == id);
+            if (rolDto.Id != id)
+            {
+                return BadRequest("El id del rol no coincide con el id de la url");
+            }
 
-            if (!existe)
+            var existeRol = await context.Roles.AnyAsync(x => x.Id == id);
+
+            if (!existeRol)
             {
                 return NotFound();
             }
 
-            if (rol.Id != id)
-            {
-                return BadRequest("El id del rol no coincide con el id de la url");
-            }
+            var rol = new Rol { Id = rolDto.Id, Nombre = rolDto.Nombre };
+
             context.Update(rol);
             await context.SaveChangesAsync();
+
             return Ok();
         }
 
