@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiGames.DTO.Tienda;
 using WebApiGames.Entidades;
 using WebApiGames.Filtros;
 
@@ -19,22 +20,26 @@ namespace WebApiGames.Controllers
         }
 
         [HttpGet]
-        [ServiceFilter(typeof(AdminRoleAuthorizationFilter))]
-        public async Task<ActionResult<List<Tienda>>> Get()
+        //[ServiceFilter(typeof(AdminRoleAuthorizationFilter))]
+        public async Task<ActionResult<List<TiendaViewDTO>>> Get()
         {
-            return await context.Tiendas.ToListAsync();
+            //return await context.Tiendas.ToListAsync();
+            var tiendas = await context.Tiendas.ToListAsync();
+            return tiendas.Select(r => new TiendaViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList();
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Tienda tienda)
+        public async Task<ActionResult> Post([FromBody] TiendaCreateDTO tiendaDto)
         {
 
-            var existeTienda = await context.Tiendas.AnyAsync(x => x.Nombre == tienda.Nombre);
+            var existeTienda = await context.Tiendas.AnyAsync(x => x.Nombre == tiendaDto.Nombre);
 
             if (existeTienda)
             {
-                return BadRequest($"Ya existe la tienda {tienda.Nombre}");
+                return BadRequest($"Ya existe la tienda {tiendaDto.Nombre}");
             }
+
+            var tienda = new Tienda { Nombre = tiendaDto.Nombre };
 
             context.Add(tienda);
             await context.SaveChangesAsync();
@@ -42,7 +47,7 @@ namespace WebApiGames.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Tienda tienda, int id)
+        public async Task<ActionResult> Put(TiendaViewDTO tiendaDto, int id)
         {
             //var entityType = typeof(Tienda);
             //var existe = await context.FindAsync(entityType, id);
@@ -59,10 +64,13 @@ namespace WebApiGames.Controllers
                 return NotFound();
             }
 
-            if (tienda.Id != id)
+            if (tiendaDto.Id != id)
             {
                 return BadRequest("El id del autor no coincide con el id de la url");
             }
+
+            var tienda = new Tienda { Id = id, Nombre = tiendaDto.Nombre };
+
             context.Update(tienda);
             await context.SaveChangesAsync();
             return Ok();

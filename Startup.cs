@@ -24,7 +24,7 @@ namespace WebApiGames
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
             services.AddEndpointsApiExplorer();
-            services.AddScoped<AdminRoleAuthorizationFilter>();
+            //services.AddScoped<AdminRoleAuthorizationFilter>();
             services.AddSwaggerGen();
         }
 
