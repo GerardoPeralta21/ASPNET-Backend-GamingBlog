@@ -6,5 +6,6 @@ namespace WebApiGames.DTO.Blog
     {
         [Required]
         public string Name { get; set; }
+        public int IdTienda { get; set; }
     }
 }

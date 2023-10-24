@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Extensions.Hosting;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace WebApiGames.Entidades
@@ -8,7 +9,7 @@ namespace WebApiGames.Entidades
         public int Id { get; set; }
         public string Nombre { get; set; }
 
-
+        public ICollection<Blog> Blogs { get; } = new List<Blog>();
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             var errors = new List<ValidationResult>();

@@ -28,6 +28,11 @@ namespace WebApiGames
                 .WithOne(e => e.Blog)
                 .HasForeignKey<BlogHeader>(e => e.BlogId)
                 .IsRequired();
+
+            modelBuilder.Entity<Tienda>()
+            .HasMany(e => e.Blogs)
+            .WithOne(e => e.Tienda)
+            .HasForeignKey(e => e.TiendaId);
         }
     }
 }

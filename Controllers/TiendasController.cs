@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiGames.DTO.Blog;
+using WebApiGames.DTO.Rol;
 using WebApiGames.DTO.Tienda;
 using WebApiGames.Entidades;
 using WebApiGames.Filtros;
@@ -24,8 +26,10 @@ namespace WebApiGames.Controllers
         public async Task<ActionResult<List<TiendaViewDTO>>> Get()
         {
             //return await context.Tiendas.ToListAsync();
-            var tiendas = await context.Tiendas.ToListAsync();
-            return tiendas.Select(r => new TiendaViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList();
+            var tiendas = await context.Tiendas.Include(b => b.Blogs).ToListAsync();
+            return tiendas.Select(r => new TiendaViewDTO { Id = r.Id, Nombre = r.Nombre,
+            Blogs= r.Blogs.Select(r => new BlogViewDTO { Id = r.Id, Name = r.Name }).ToList()
+            }).ToList();
         }
 
         [HttpPost]

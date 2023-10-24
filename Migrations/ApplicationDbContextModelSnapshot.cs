@@ -21,6 +21,21 @@ namespace WebApiGames.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("RolUsuario", b =>
+                {
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuariosId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolesId", "UsuariosId");
+
+                    b.HasIndex("UsuariosId");
+
+                    b.ToTable("RolUsuario");
+                });
+
             modelBuilder.Entity("WebApiGames.Entidades.Blog", b =>
                 {
                     b.Property<int>("Id")
@@ -33,7 +48,12 @@ namespace WebApiGames.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TiendaId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TiendaId");
 
                     b.ToTable("Blogs");
                 });
@@ -61,6 +81,22 @@ namespace WebApiGames.Migrations
                     b.ToTable("BlogHeaders");
                 });
 
+            modelBuilder.Entity("WebApiGames.Entidades.Rol", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("WebApiGames.Entidades.Tienda", b =>
                 {
                     b.Property<int>("Id")
@@ -77,6 +113,48 @@ namespace WebApiGames.Migrations
                     b.ToTable("Tiendas");
                 });
 
+            modelBuilder.Entity("WebApiGames.Entidades.Usuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("RolUsuario", b =>
+                {
+                    b.HasOne("WebApiGames.Entidades.Rol", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApiGames.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuariosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WebApiGames.Entidades.Blog", b =>
+                {
+                    b.HasOne("WebApiGames.Entidades.Tienda", "Tienda")
+                        .WithMany("Blogs")
+                        .HasForeignKey("TiendaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tienda");
+                });
+
             modelBuilder.Entity("WebApiGames.Entidades.BlogHeader", b =>
                 {
                     b.HasOne("WebApiGames.Entidades.Blog", "Blog")
@@ -91,6 +169,11 @@ namespace WebApiGames.Migrations
             modelBuilder.Entity("WebApiGames.Entidades.Blog", b =>
                 {
                     b.Navigation("Header");
+                });
+
+            modelBuilder.Entity("WebApiGames.Entidades.Tienda", b =>
+                {
+                    b.Navigation("Blogs");
                 });
 #pragma warning restore 612, 618
         }

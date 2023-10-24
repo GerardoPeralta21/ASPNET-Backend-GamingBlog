@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Reflection.Metadata;
 using WebApiGames.DTO.Blog;
 using WebApiGames.Entidades;
 
@@ -22,10 +23,10 @@ namespace WebApiGames.Controllers
         [HttpGet]
         public async Task<ActionResult<List<BlogViewDTO>>> Get()
         {
-            var blogs = await context.Blogs.ToListAsync();
-            logger.LogWarning("Mensaje");
-            Console.WriteLine("Este es un mensaje!");
-            return blogs.Select(r => new BlogViewDTO { Id = r.Id, Name = r.Name }).ToList();
+            //var blogs = await context.Blogs.ToListAsync();
+            var blogs = await context.Blogs.Include(b => b.Tienda).ToListAsync();
+
+            return blogs.Select(r => new BlogViewDTO { Id = r.Id, Name = r.Name, NombreTienda = r.Tienda?.Nombre ?? "N/A" }).ToList();
             
         }
 
@@ -39,9 +40,18 @@ namespace WebApiGames.Controllers
                 return BadRequest($"Ya existe el blog{blog.Name}");
             }
 
-            var blogToSave = new Blog{ Name = blog.Name};
+            var existeTienda = await context.Tiendas.AnyAsync(x => x.Id == blog.IdTienda);
 
-            context.Add(blogToSave);
+            if (!existeTienda)
+            {
+                return BadRequest($"No existe la tienda que intentas asociar");
+            }
+
+            var tienda = await context.Tiendas.FindAsync(blog.IdTienda);
+
+            var blogToSave = new Blog{ Name = blog.Name, TiendaId = blog.IdTienda, Tienda = tienda};
+
+            context.Add(blogToSave); 
             await context.SaveChangesAsync();
             return Ok();
         }
@@ -61,7 +71,16 @@ namespace WebApiGames.Controllers
                 return BadRequest("El id del autor no coincide con el id de la url");
             }
 
-            var BlogToEdit = new Blog { Name = blog.Name, Id = blog.Id };
+            var existeTienda = await context.Tiendas.AnyAsync(x => x.Id == blog.IdTienda);
+
+            if (!existeTienda)
+            {
+                return BadRequest($"No existe la tienda que intentas asociar");
+            }
+
+            var tienda = await context.Tiendas.FindAsync(blog.IdTienda);
+
+            var BlogToEdit = new Blog { Name = blog.Name, Id = blog.Id, TiendaId = blog.IdTienda, Tienda = tienda };
 
             context.Update(BlogToEdit);
             await context.SaveChangesAsync();
