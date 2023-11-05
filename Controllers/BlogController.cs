@@ -25,7 +25,12 @@ namespace WebApiGames.Controllers
         {
             //var blogs = await context.Blogs.ToListAsync();
             var blogs = await context.Blogs.Include(b => b.Tienda).ToListAsync();
-
+            logger.LogCritical("Esto es una prueba de loger Critical");
+            logger.LogError("Esto es una prueba de loger Error");
+            logger.LogWarning("Esto es una prueba de loger Warning");
+            logger.LogInformation("Esto es una prueba de loger Information");
+            logger.LogDebug("Esto es una prueba de loger Debug");
+            logger.LogTrace("Esto es una prueba de loger Trace");
             return blogs.Select(r => new BlogViewDTO { Id = r.Id, Name = r.Name, NombreTienda = r.Tienda?.Nombre ?? "N/A" }).ToList();
             
         }

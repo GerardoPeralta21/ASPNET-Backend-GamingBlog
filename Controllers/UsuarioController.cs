@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using WebApiGames.DTO.Rol;
@@ -13,41 +14,52 @@ namespace WebApiGames.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly ILogger<TiendasController> logger;
+        private readonly IMapper mapper;
 
-        public UsuarioController(ApplicationDbContext context, ILogger<TiendasController> logger)
+        public UsuarioController(ApplicationDbContext context, ILogger<TiendasController> logger, IMapper mapper)
         {
             this.context = context;
             this.logger = logger;
+            this.mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<UsuarioViewDTO>>> Get()
         {
-            var usuarios = await context.Usuarios.Include(u => u.Roles).ToListAsync();
-            return usuarios.Select(u => new UsuarioViewDTO
-            {
-                Id = u.Id,
-                Nombre = u.Nombre,
-                Roles = u.Roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList()
-            }).ToList();
+            var usuarios = await context.Usuarios.Include(u => u.Tienda).Include(u => u.Roles).ToListAsync();
+
+            var usuariosDTO = mapper.Map<List<UsuarioViewDTO>>(usuarios);
+
+            return Ok(usuariosDTO);
+            //return usuarios.Select(u => new UsuarioViewDTO
+            //{
+            //    Id = u.Id,
+            //    Nombre = u.Nombre,
+            //    Roles = u.Roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList()
+            //}).ToList();
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<UsuarioViewDTO>> GetById(int id)
         {
-            var usuario = await context.Usuarios.Include(u => u.Roles).FirstOrDefaultAsync(x => x.Id == id);
+            var usuario = await context.Usuarios.Include(u => u.Tienda).Include(u => u.Roles).FirstOrDefaultAsync(x => x.Id == id);
 
             if (usuario == null)
             {
                 return NotFound();
             }
 
-            return new UsuarioViewDTO
-            {
-                Id = id,
-                Nombre = usuario.Nombre,
-                Roles = usuario.Roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList()
-            };
+            var usuarioDTO = mapper.Map<UsuarioViewDTO>(usuario);
+
+            return Ok(usuarioDTO);
+
+
+            //return new UsuarioViewDTO
+            //{
+            //    Id = id,
+            //    Nombre = usuario.Nombre,
+            //    Roles = usuario.Roles.Select(r => new RolViewDTO { Id = r.Id, Nombre = r.Nombre }).ToList()
+            //};
         }
 
         [HttpPost]
@@ -70,11 +82,14 @@ namespace WebApiGames.Controllers
                 return BadRequest($"Los siguientes id, no corresponden a roles: {string.Join(", ", idsRolesNoExistentes)}");
             }
 
-            var usuario = new Usuario
-            {
-                Nombre = usuarioDto.Nombre,
-                Roles = rolesExistentes
-            };
+            //var usuario = new Usuario
+            //{
+            //    Nombre = usuarioDto.Nombre,
+            //    Roles = rolesExistentes
+            //};
+
+            var usuario = mapper.Map<Usuario>(usuarioDto);
+            usuario.Roles = rolesExistentes;
 
             context.Add(usuario);
             await context.SaveChangesAsync();

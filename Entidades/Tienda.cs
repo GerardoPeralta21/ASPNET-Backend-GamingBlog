@@ -10,6 +10,8 @@ namespace WebApiGames.Entidades
         public string Nombre { get; set; }
 
         public ICollection<Blog> Blogs { get; } = new List<Blog>();
+        public ICollection<Usuario> Usuarios{ get; } = new List<Usuario>(); // Collection navigation containing dependents
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             var errors = new List<ValidationResult>();

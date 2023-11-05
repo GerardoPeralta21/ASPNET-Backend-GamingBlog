@@ -26,6 +26,8 @@ namespace WebApiGames
             services.AddEndpointsApiExplorer();
             //services.AddScoped<AdminRoleAuthorizationFilter>();
             services.AddSwaggerGen();
+
+            services.AddAutoMapper(typeof(Startup));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
