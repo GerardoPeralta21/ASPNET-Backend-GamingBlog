@@ -1,0 +1,55 @@
+Preparando proyecto
+1 - Crear clase Startup y configurarla
+2 - Crear clase Startup y configurarla 
+3 - Desactivar tipos de referencia no nulos
+4 - Eliminar el weatherForest del controller y del proyecto
+5 - Hacer rebuild del solution.
+
+Creacion, migracion y actualizacion de BD
+1 - Instalar paquetes de ORM:
+	EntityFrameworkCore.SqlServer
+	EntityFrameworkTools
+2 - Crear clase ApplicationDbContext la cual hereda de DbContext.
+3 - En appsetting.json en las DevelopmentSetting.json colocar por default connexion para la Bd local.
+4 - Crear entidades, en ellas se pueden hacer validaciones con IValidatableObject.
+5 - En la clase Startup.cs hacer la inyeccion con services.AddDbContext<>....
+6 - Tools -> Nuget console 
+							Drop-Database
+							Add-Migration nameMigration
+							Update-Database
+
+Controller
+1 - Crear controller, heredar de Controllerbase
+2 - Colocar decorador [ApiController]
+					  [Route("api/v1/direction")]
+
+
+Middleware
+1 - Crear clase
+2 - Registrar en clase Startup con app.UseMiddleware<>
+
+Filtro
+1 - Crear clase y heredar de IAsyncActionFilter
+2 - Registrar en clase Startup en ConfigureService services.AddScope<FiltroName>
+3 - Colocar en ruta deseada [ServiceFilter(typeof(filtroName))]
+
+Muchos-Muchos
+1 - Crear ambas entidades
+2 - En startup al services.AddControllers() agregar AddJsonOptions(Confifure =>...)
+3 - Crear controller
+
+Dto Manual
+1 - Crear carpeta DTO
+2 - Crear archivo
+3 - Convertir manualmente el DTO a la entidad.
+
+
+En OnModelCreating en ApplicationDbContext se puede abordar mas de las relaciones entre tablas
+- Definicion de DbSet
+
+Impresion en consola
+1 - En el constructor recibimos como parametro ILogger<NombreController>
+2 - Agregar como atributo
+3 - Logger-LogInformation("mensaje") puede ser LogCritical, error, warning, information, debug y trace.
+4 - Se puede cambiar el nivel de impresion en appSettingjso -> appsetting.development.json loglevel
+5 -  puede agregar niveles para que no se muestren todos.
