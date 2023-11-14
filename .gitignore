@@ -3,11 +3,11 @@
 /obj/
 
 # Archivos de configuración local
-/appsettings.json
-/appsettings.Development.json
-/appsettings.Production.json
-/appsettings.Staging.json
-/appsettings.Local.json
+#/appsettings.json
+#/appsettings.Development.json
+#/appsettings.Production.json
+#/appsettings.Staging.json
+#/appsettings.Local.json
 
 # Carpeta de archivos temporales generados durante el desarrollo
 /.vscode/
