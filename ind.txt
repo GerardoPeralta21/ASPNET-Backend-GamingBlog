@@ -53,3 +53,20 @@ Impresion en consola
 3 - Logger-LogInformation("mensaje") puede ser LogCritical, error, warning, information, debug y trace.
 4 - Se puede cambiar el nivel de impresion en appSettingjso -> appsetting.development.json loglevel
 5 -  puede agregar niveles para que no se muestren todos.
+
+DTO con AutoMapper
+
+1 - Click derecho sobre la razin del proyecto
+2 - Administrar paquete de nugget
+3 - Descargar AutoMapper.Extensions.Microsoft.DependencyInjections
+4 - En la clase Startup.cs en el metodo COnfigureServices, agregar services.AddAutoMapper(typeof(Startup));
+5 - Crear Carpeta Utilidades
+6 - Crear clase AutoMapperProfiles que hereda de Profile 
+
+........
+7 - En constructor de la clase controller, llamar a IMapper mapper
+8 - Crear Carpeta DTO y crear una carpeta para tener en orden los DTO que esten asociados
+9 - Crear DTO
+10 - En el controlador de la clase a usar, agregar en el contructor crear un campo con IMapper.
+11 - En la clase AutoMapperProfiles agregar CreateMap
+12 - Crear el metodo en el controlador
