@@ -18,6 +18,11 @@ Creacion, migracion y actualizacion de BD
 							Add-Migration nameMigration
 							Update-Database
 
+Validar Modelo o DTO 
+1 - Crear carpeta validaciones
+2 - Crear clase validadora hereda de ValidationAttribute
+3 - Agregar en forma de decorador a la entidad o al DTO
+
 Controller
 1 - Crear controller, heredar de Controllerbase
 2 - Colocar decorador [ApiController]
