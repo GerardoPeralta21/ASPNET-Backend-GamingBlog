@@ -12,8 +12,9 @@ Creacion, migracion y actualizacion de BD
 2 - Crear clase ApplicationDbContext la cual hereda de DbContext.
 3 - En appsetting.json en las DevelopmentSetting.json colocar por default connexion para la Bd local.
 4 - Crear entidades, en ellas se pueden hacer validaciones con IValidatableObject.
-5 - En la clase Startup.cs hacer la inyeccion con services.AddDbContext<>....
-6 - Tools -> Nuget console 
+5 - En la clase ApplicationDbContext registrar la nueva entidad
+6 - Agregar en clase Startup services.AddDbContext<ApplicationDbContext>...
+7 - Tools -> Nuget console 
 							Drop-Database
 							Add-Migration nameMigration
 							Update-Database
@@ -67,6 +68,9 @@ DTO con AutoMapper
 4 - En la clase Startup.cs en el metodo COnfigureServices, agregar services.AddAutoMapper(typeof(Startup));
 5 - Crear Carpeta Utilidades
 6 - Crear clase AutoMapperProfiles que hereda de Profile 
+6.2 - Crear Carpeta DTO
+6.3 - Crear Carpeta para los DTO de la entidad
+6.4 - Crear DTO
 
 ........
 7 - En constructor de la clase controller, llamar a IMapper mapper
@@ -75,3 +79,20 @@ DTO con AutoMapper
 10 - En el controlador de la clase a usar, agregar en el contructor crear un campo con IMapper.
 11 - En la clase AutoMapperProfiles agregar CreateMap
 12 - Crear el metodo en el controlador
+
+JWT Autenticacion y Autorizacion:
+1 - Colocar variable de entorn oen appsettings.json, con la llave Jwt.
+2 - En el administrador de paquetes de Nuget instalar:
+							Microsoft.AspNetCore.Authentication.JwtBearer 
+							Microsoft.EntityFrameworkCore.Tools
+							Newtonsoft.Json
+							Swashbuckle.AspNetCore
+							Swashbuckle.AspNetCore.Swagger
+3 - En archivo Progam.cs agregar: builder.Services.AddAuthentication....
+4 - Agregar en Startup en el metodo Configure app.UseAuthentication(); 
+5 . En el controlador uqe se desea usar, en el constructor colcoar como parametro IConfiguration configuration
+6 - Crear variable jwt para obtener las claves del jwt y sus variables de entorno.
+7 - Crear un modelo Jwt.
+8 - Crar variable claims para armar la data para nuestro jwt
+9 - Crear variable key, singIn, token.
+10 - Agregar en clase Program builder.Services.AddSwaggerGen(c =>...)
